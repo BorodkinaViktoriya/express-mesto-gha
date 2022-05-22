@@ -22,7 +22,7 @@ const getUser = (req, res) => {
             'Такого пользователя не существует',
         });
       }
-      res.status(200).send(user);
+      return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
@@ -31,7 +31,7 @@ const getUser = (req, res) => {
             'Неверный id пользователя',
         });
       }
-      res.status(500).send({
+      return res.status(500).send({
         message:
           'На сервере произошла ошибка',
       });
@@ -43,19 +43,54 @@ const createUser = (req, res) => {
   if (!name || !about || !avatar) {
     return res.status(400).send({ message: 'Поля заполнены неверно' });
   }
-  User.create({ name, about, avatar })
+  return User.create({ name, about, avatar })
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        console.log(err);
         return res.status(400).send({ message: 'Поля заполнены неверно' });
       }
-      res.status(500).send({
+      return res.status(500).send({
         message:
           'На сервере произошла ошибка',
       });
+    });
+};
+
+const updateUser = (req, res) => {
+  const { name, about } = req.body;
+  console.log(req.body);
+  return User.findByIdAndUpdate(req.user._id, { name, about }, {
+    new: true,
+    runValidators: true,
+  })
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Поля заполнены неверно' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
+    });
+};
+
+const updateAvatar = (req, res) => {
+  const { avatar } = req.body;
+  console.log(req.body);
+  return User.findByIdAndUpdate(req.user._id, { avatar }, {
+    new: true,
+    runValidators: true,
+  })
+    .then((user) => {
+      res.send(user);
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(400).send({ message: 'Поля заполнены неверно' });
+      }
+      return res.status(500).send({ message: 'Произошла ошибка' });
     });
 };
 
@@ -63,4 +98,6 @@ module.exports = {
   getUsers,
   getUser,
   createUser,
+  updateUser,
+  updateAvatar,
 };

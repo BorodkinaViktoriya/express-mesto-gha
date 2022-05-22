@@ -15,10 +15,11 @@ const getCards = (req, res) => {
 
 const createCard = (req, res) => {
   const { name, link } = req.body;
-  if (!name || !link ) {
+  const owner = req.user._id;
+  if (!name || !link) {
     return res.status(400).send({ message: 'Поля заполнены неверно' });
   }
-  User.create({ name, link })
+  Card.create({ name, link, owner })
     .then((card) => {
       res.send(card);
     })
@@ -36,7 +37,7 @@ const createCard = (req, res) => {
 
 
 const deleteCard = (req, res) => {
-  User.findById(req.params.id)
+  /*User.findById(req.params.id)
     .then((user) => {
       if (!user) {
         return res.status(404).send({
@@ -51,13 +52,13 @@ const deleteCard = (req, res) => {
         return res.status(400).send({
           message:
             'Неверный id пользователя',
-        });
-      }
+        });*!/
+     }
       res.status(500).send({
         message:
           'На сервере произошла ошибка',
       });
-    });
+    });*/
 };
 
 module.exports = {
