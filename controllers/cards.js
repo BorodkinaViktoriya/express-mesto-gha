@@ -2,6 +2,7 @@ const Card = require('../models/card');
 
 const getCards = (req, res) => {
   Card.find({})
+    .populate('owner')
     .then((cards) => {
       res.status(200).send(cards);
     })
@@ -19,13 +20,12 @@ const createCard = (req, res) => {
   if (!name || !link) {
     return res.status(400).send({ message: 'Поля заполнены неверно' });
   }
-  Card.create({ name, link, owner })
+  return Card.create({ name, link, owner })
     .then((card) => {
-      res.send(card);
+      res.status(201).send(card);
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        console.log(err);
         return res.status(400).send({ message: 'Поля заполнены неверно' });
       }
       res.status(500).send({
@@ -35,30 +35,20 @@ const createCard = (req, res) => {
     });
 };
 
-
 const deleteCard = (req, res) => {
-  /*User.findById(req.params.id)
-    .then((user) => {
-      if (!user) {
-        return res.status(404).send({
-          message:
-            'Такого пользователя не существует',
-        });
+  Card.findByIdAndRemove(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        console.log(res)
+        console.log(card)
+        return res.status(400).send({ message: 'Ошибка. Такой карточки не существует' });
       }
-      res.status(200).send(user);
+      return res.send(card);
     })
     .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        return res.status(400).send({
-          message:
-            'Неверный id пользователя',
-        });*!/
-     }
-      res.status(500).send({
-        message:
-          'На сервере произошла ошибка',
-      });
-    });*/
+      console.log(err)
+      res.status(500).send({ message: 'На сервере произошла ошибка' });
+    });
 };
 
 module.exports = {

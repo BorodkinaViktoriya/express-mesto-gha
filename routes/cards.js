@@ -8,6 +8,7 @@ router.delete('/cards/:cardId', deleteCard);
 /*
 PUT /cards/:cardId/likes — поставить лайк карточке
 DELETE /cards/:cardId/likes — убрать лайк с карточки
+DELETE /cards/:cardId
 */
 
 
