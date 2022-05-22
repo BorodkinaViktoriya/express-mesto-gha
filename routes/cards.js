@@ -1,3 +1,3 @@
 const router = require('express').Router();
 
-module.exports.CardRouter = router;
+module.exports.cardRouter = router;

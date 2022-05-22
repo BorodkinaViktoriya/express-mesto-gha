@@ -1,8 +1,8 @@
 const express = require('express');
 const fs = require('fs');
 const mongoose = require('mongoose');
-const { UsersRouter } = require('./routes/users');
-const { CardRouter } = require('./routes/cards');
+const { usersRouter } = require('./routes/users');
+const { cardRouter } = require('./routes/cards');
 const { PORT = 3000 } = process.env;
 
 mongoose.connect('mongodb://localhost:27017/mydb');
