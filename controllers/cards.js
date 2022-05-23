@@ -28,7 +28,7 @@ const createCard = (req, res) => {
       if (err.name === 'ValidationError') {
         return res.status(400).send({ message: ' Переданы некорректные данные при создании карточки.' });
       }
-      res.status(500).send({
+      return res.status(500).send({
         message:
           'На сервере произошла ошибка',
       });
@@ -39,14 +39,11 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        console.log(res);
-        console.log(card);
         return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return res.send(card);
     })
-    .catch((err) => {
-      console.log(err);
+    .catch(() => {
       res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
@@ -65,7 +62,7 @@ const addLike = (req, res) => {
       if (err.status === 400) {
         return res.status(400).send({ message: ' Переданы некорректные данные для постановки/снятии лайка.' });
       }
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
