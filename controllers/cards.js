@@ -39,12 +39,18 @@ const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(400).send({ message: 'Карточка с указанным _id не найдена.' });
+        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
       }
       return res.send(card);
     })
-    .catch(() => {
-      res.status(500).send({ message: 'На сервере произошла ошибка' });
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        return res.status(400).send({
+          message:
+            'Передано некорректное id карточки.',
+        });
+      }
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -53,7 +59,6 @@ const addLike = (req, res) => {
     new: true,
   })
     .then((card) => {
-      console.log(card);
       if (!card) {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
       }
@@ -66,7 +71,6 @@ const addLike = (req, res) => {
             'Переданы некорректные данные для постановки/снятия лайка.',
         });
       }
-      console.log(err);
       return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
