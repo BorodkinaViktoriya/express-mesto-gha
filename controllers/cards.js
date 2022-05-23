@@ -53,15 +53,20 @@ const addLike = (req, res) => {
     new: true,
   })
     .then((card) => {
+      console.log(card);
       if (!card) {
         return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
       }
       return res.send(card);
     })
     .catch((err) => {
-      if (err.status === 400) {
-        return res.status(400).send({ message: ' Переданы некорректные данные для постановки/снятии лайка.' });
+      if (err.kind === 'ObjectId') {
+        return res.status(400).send({
+          message:
+            'Переданы некорректные данные для постановки/снятия лайка.',
+        });
       }
+      console.log(err);
       return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
@@ -77,8 +82,11 @@ const removeLike = (req, res) => {
       return res.send(card);
     })
     .catch((err) => {
-      if (err.status === 400) {
-        return res.status(400).send({ message: ' Переданы некорректные данные для постановки/снятии лайка.' });
+      if (err.kind === 'ObjectId') {
+        return res.status(400).send({
+          message:
+            'Переданы некорректные данные для постановки/снятия лайка.',
+        });
       }
       return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
