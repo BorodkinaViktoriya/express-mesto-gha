@@ -19,7 +19,7 @@ const getUser = (req, res) => {
       if (!user) {
         return res.status(404).send({
           message:
-            'Такого пользователя не существует',
+            'Пользователь по указанному _id не найден.',
         });
       }
       return res.status(200).send(user);
@@ -28,7 +28,7 @@ const getUser = (req, res) => {
       if (err.kind === 'ObjectId') {
         return res.status(400).send({
           message:
-            'Неверный id пользователя',
+            'Пользователь по указанному _id не найден.',
         });
       }
       return res.status(500).send({
@@ -41,7 +41,7 @@ const getUser = (req, res) => {
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
   if (!name || !about || !avatar) {
-    return res.status(400).send({ message: 'Поля заполнены неверно' });
+    return res.status(400).send({ message: ' Переданы некорректные данные при создании пользователя. ' });
   }
   return User.create({ name, about, avatar })
     .then((user) => {
@@ -49,7 +49,7 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Поля заполнены неверно' });
+        return res.status(400).send({ message: ' Переданы некорректные данные при создании пользователя. ' });
       }
       return res.status(500).send({
         message:
@@ -70,9 +70,9 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Поля заполнены неверно' });
+        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
@@ -88,9 +88,9 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Поля заполнены неверно' });
+        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
       }
-      return res.status(500).send({ message: 'Произошла ошибка' });
+      return res.status(500).send({ message: 'На сервере произошла ошибка' });
     });
 };
 
