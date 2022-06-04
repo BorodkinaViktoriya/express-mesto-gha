@@ -17,7 +17,7 @@ const getUsers = (req, res) => {
 };
 
 const getUser = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.user._id)
     .then((user) => {
       if (!user) {
         return res.status(404).send({
@@ -58,7 +58,12 @@ const createUser = (req, res) => {
       avatar,
     }))
     .then((user) => {
-      res.send(user);
+      res.status(200).send({
+        email: user.email,
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+      }); // тут точно надо допилить что должно передаваться!!!
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -105,7 +110,7 @@ const updateAvatar = (req, res) => {
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
