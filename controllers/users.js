@@ -1,3 +1,6 @@
+const bcrypt = require('bcryptjs');
+const validator = require('validator');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 
 const getUsers = (req, res) => {
@@ -39,11 +42,21 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
-  if (!name || !about || !avatar) {
+  const {
+    email, password, name, about, avatar,
+  } = req.body;
+  const isEmail = validator.isEmail(email);
+  if (!isEmail || !password) {
     return res.status(400).send({ message: ' Переданы некорректные данные при создании пользователя. ' });
   }
-  return User.create({ name, about, avatar })
+  return bcrypt.hash(req.body.password, 10)
+    .then((hash) => User.create({
+      email,
+      password: hash,
+      name,
+      about,
+      avatar,
+    }))
     .then((user) => {
       res.send(user);
     })
@@ -92,10 +105,28 @@ const updateAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      return res.status(200).send({ token });
+    })
+    .catch((err) => {
+      if (err.message === 'not_found') {
+        return res.status(400).send({ message: 'Емейл или пароль неверный' });
+      }
+
+      return res.status(500).send({ message: 'Что-то сломалось' });
+    });
+};
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   updateAvatar,
+  login,
 };
