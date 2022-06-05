@@ -2,52 +2,39 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { NotFoundError, BadRequestError } = require('../errors/errors');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.status(200).send(users);
     })
-    .catch(() => {
-      res.status(500).send({
-        message:
-          'На сервере произошла ошибка',
-      });
-    });
+    .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        return res.status(404).send({
-          message:
-            'Пользователь по указанному _id не найден.',
-        });
+        throw new NotFoundError('Пользователь по указанному _id не найден.');
       }
       return res.status(200).send(user);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return res.status(400).send({
-          message:
-            'Пользователь по указанному _id не найден.',
-        });
+        throw new BadRequestError('Передан некорректный _id.');
       }
-      return res.status(500).send({
-        message:
-          'На сервере произошла ошибка',
-      });
+      return next(err);
     });
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
   const isEmail = validator.isEmail(email);
   if (!isEmail || !password) {
-    return res.status(400).send({ message: ' Переданы некорректные данные при создании пользователя. ' });
+    throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
   }
   return bcrypt.hash(req.body.password, 10)
     .then((hash) => User.create({
@@ -63,20 +50,17 @@ const createUser = (req, res) => {
         name: user.name,
         about: user.about,
         avatar: user.avatar,
-      }); // тут точно надо допилить что должно передаваться!!!
+      });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: ' Переданы некорректные данные при создании пользователя. ' });
+        throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
       }
-      return res.status(500).send({
-        message:
-          'На сервере произошла ошибка',
-      });
+      return next(err);
     });
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   return User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
@@ -87,13 +71,13 @@ const updateUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении профиля.' });
+        throw new BadRequestError('Переданы некорректные данные при обновлении профиля.');
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      return next(err);
     });
 };
 
-const updateAvatar = (req, res) => {
+const updateAvatar = (req, res, next) => {
   const { avatar } = req.body;
   return User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
@@ -104,9 +88,9 @@ const updateAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: 'Переданы некорректные данные при обновлении аватара.' });
+        throw new BadRequestError('Переданы некорректные данные при обновлении аватара.');
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      return next(err);
     });
 };
 
@@ -120,10 +104,9 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === 'not_found') {
-        return res.status(400).send({ message: 'Емейл или пароль неверный' });
+        throw new BadRequestError('Емейл или пароль неверный');
       }
-
-      return res.status(500).send({ message: 'Что-то сломалось' });
+      return next(err);
     });
 };
 
