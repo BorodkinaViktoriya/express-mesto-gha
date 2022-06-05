@@ -1,5 +1,5 @@
 const bcrypt = require('bcryptjs');
-const validator = require('validator');
+
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const { NotFoundError, BadRequestError, ConflictError } = require('../errors/errors');
@@ -32,10 +32,9 @@ const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-  const isEmail = validator.isEmail(email);
-  if (!isEmail || !password || !email) {
+  /* if (!password || !email) {
     throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
-  }
+  } */
   return bcrypt.hash(password, 10)
     .then((hash) => User.create({
       email,
@@ -53,6 +52,8 @@ const createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
+      console.log(err);
+      console.log(err.name);
       if (err.name === 'ValidationError') {
         return next(new BadRequestError(' Переданы некорректные данные при создании пользователя. '));
       }
@@ -113,6 +114,22 @@ const login = (req, res, next) => {
     });
 };
 
+const getMe = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Пользователь по указанному _id не найден.');
+      }
+      return res.status(200).send(user);
+    })
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        return next(new BadRequestError('Передан некорректный _id.'));
+      }
+      return next(err);
+    });
+};
+
 module.exports = {
   getUsers,
   getUser,
@@ -120,4 +137,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  getMe,
 };

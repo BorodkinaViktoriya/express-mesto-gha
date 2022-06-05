@@ -42,7 +42,7 @@ const deleteCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return new BadRequestError('Передано некорректное id карточки.');
+        return next(new BadRequestError('Передано некорректное id карточки.'));
       }
       return next(err);
     });
