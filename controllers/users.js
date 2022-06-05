@@ -54,8 +54,6 @@ const createUser = (req, res, next) => {
       });
     })
     .catch((err) => {
-      console.log(err);
-      console.log(err.name);
       if (err.name === 'ValidationError') {
         return next(new BadRequestError(' Переданы некорректные данные при создании пользователя. '));
       }

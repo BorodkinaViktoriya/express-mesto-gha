@@ -18,7 +18,6 @@ const createCard = (req, res, next) => {
   }
   return Card.create({ name, link, owner })
     .then((card) => {
-      console.log(card)
       res.status(201).send(card);
     })
     .catch((err) => {
