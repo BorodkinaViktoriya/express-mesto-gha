@@ -60,7 +60,7 @@ const addLike = (req, res, next) => {
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return next(BadRequestError('Переданы некорректные данные для постановки/снятия лайка.'));
+        return next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка.'));
       }
       return next(err);
     });
