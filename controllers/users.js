@@ -32,9 +32,9 @@ const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-  /* if (!password || !email) {
+  if (!password || !email) {
     throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
-  } */
+  }
   return bcrypt.hash(password, 10)
     .then((hash) => User.create({
       email,

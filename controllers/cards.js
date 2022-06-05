@@ -48,45 +48,39 @@ const deleteCard = (req, res, next) => {
     });
 };
 
-const addLike = (req, res) => {
+const addLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: req.user._id } }, {
     new: true,
   })
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        throw new NotFoundError('Карточка с таким  _id не найдена.');
       }
       return res.send(card);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return res.status(400).send({
-          message:
-            'Переданы некорректные данные для постановки/снятия лайка.',
-        });
+        return next(BadRequestError('Переданы некорректные данные для постановки/снятия лайка.'));
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      return next(err);
     });
 };
 
-const removeLike = (req, res) => {
+const removeLike = (req, res, next) => {
   Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: req.user._id } }, {
     new: true,
   })
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Передан несуществующий _id карточки.' });
+        throw new NotFoundError('Карточка с таким  _id не найдена.');
       }
       return res.send(card);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return res.status(400).send({
-          message:
-            'Переданы некорректные данные для постановки/снятия лайка.',
-        });
+        return next(BadRequestError('Переданы некорректные данные для постановки/снятия лайка.'));
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      return next(err);
     });
 };
 

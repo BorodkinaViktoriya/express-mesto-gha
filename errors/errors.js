@@ -1,8 +1,7 @@
-// eslint-disable-next-line max-classes-per-file
-class NotFoundError extends Error {
+class BadRequestError extends Error {
   constructor(message) {
     super(message);
-    this.statusCode = 404;
+    this.statusCode = 400;
   }
 }
 
@@ -13,17 +12,18 @@ class UnauthorizedError extends Error {
   }
 }
 
-class BadRequestError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = 400;
-  }
-}
-
 class ForbiddenError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = 403;
+  }
+}
+
+// eslint-disable-next-line max-classes-per-file
+class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = 404;
   }
 }
 
