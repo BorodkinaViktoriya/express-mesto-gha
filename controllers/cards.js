@@ -1,24 +1,20 @@
 const Card = require('../models/card');
+const { NotFoundError, BadRequestError } = require('../errors/errors');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .populate('owner')
     .then((cards) => {
       res.status(200).send(cards);
     })
-    .catch(() => {
-      res.status(500).send({
-        message:
-          'На сервере произошла ошибка',
-      });
-    });
+    .catch(next);
 };
 
-const createCard = (req, res) => {
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   if (!name || !link) {
-    return res.status(400).send({ message: ' Переданы некорректные данные при создании карточки.' });
+    throw new BadRequestError(' Переданы некорректные данные при создании карточки.');
   }
   return Card.create({ name, link, owner })
     .then((card) => {
@@ -26,12 +22,9 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: ' Переданы некорректные данные при создании карточки.' });
+        throw new BadRequestError(' Переданы некорректные данные при создании карточки.');
       }
-      return res.status(500).send({
-        message:
-          'На сервере произошла ошибка',
-      });
+      return next(err);
     });
 };
 

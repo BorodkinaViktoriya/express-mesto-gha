@@ -22,7 +22,7 @@ const getUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        throw new BadRequestError('Передан некорректный _id.');
+        return next(new BadRequestError('Передан некорректный _id.'));
       }
       return next(err);
     });
@@ -36,7 +36,7 @@ const createUser = (req, res, next) => {
   if (!isEmail || !password) {
     throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
   }
-  return bcrypt.hash(req.body.password, 10)
+  return bcrypt.hash(password, 10)
     .then((hash) => User.create({
       email,
       password: hash,
@@ -54,7 +54,7 @@ const createUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
+        return next(new BadRequestError(' Переданы некорректные данные при создании пользователя. '));
       }
       return next(err);
     });
@@ -71,7 +71,7 @@ const updateUser = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при обновлении профиля.');
+        return next(new BadRequestError('Переданы некорректные данные при обновлении профиля.'));
       }
       return next(err);
     });
@@ -88,7 +88,7 @@ const updateAvatar = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError('Переданы некорректные данные при обновлении аватара.');
+        return next(new BadRequestError('Переданы некорректные данные при обновлении аватара.'));
       }
       return next(err);
     });
@@ -104,7 +104,7 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === 'not_found') {
-        throw new BadRequestError('Емейл или пароль неверный');
+        return next(new BadRequestError('Емейл или пароль неверный'));
       }
       return next(err);
     });
