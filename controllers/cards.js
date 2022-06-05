@@ -1,5 +1,5 @@
 const Card = require('../models/card');
-const { NotFoundError, BadRequestError } = require('../errors/errors');
+const { NotFoundError, BadRequestError, ForbiddenError } = require('../errors/errors');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -22,32 +22,29 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        throw new BadRequestError(' Переданы некорректные данные при создании карточки.');
+        return next(new BadRequestError(' Переданы некорректные данные при создании карточки.'));
       }
       return next(err);
     });
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findById(req.params.cardId)
     .then((card) => {
       if (!card) {
-        return res.status(404).send({ message: 'Карточка с указанным _id не найдена.' });
+        throw new NotFoundError('Карточка с указанным _id не найдена.');
       }
       if (!card.owner.equals(req.user._id)) {
-        return res.status(404).send({ message: 'Чужужю карточку нельзя удалять.' });
+        throw new ForbiddenError('Чужужю карточку нельзя удалять.');
       }
       card.remove();
       return res.send(card);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return res.status(400).send({
-          message:
-            'Передано некорректное id карточки.',
-        });
+        return new BadRequestError('Передано некорректное id карточки.');
       }
-      return res.status(500).send({ message: 'На сервере произошла ошибка' });
+      return next(err);
     });
 };
 

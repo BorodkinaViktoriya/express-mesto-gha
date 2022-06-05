@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 const validator = require('validator');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { NotFoundError, BadRequestError } = require('../errors/errors');
+const { NotFoundError, BadRequestError, ConflictError } = require('../errors/errors');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -13,7 +13,7 @@ const getUsers = (req, res, next) => {
 };
 
 const getUser = (req, res, next) => {
-  User.findById(req.user._id)
+  User.findById(req.params.userId)
     .then((user) => {
       if (!user) {
         throw new NotFoundError('Пользователь по указанному _id не найден.');
@@ -33,7 +33,7 @@ const createUser = (req, res, next) => {
     email, password, name, about, avatar,
   } = req.body;
   const isEmail = validator.isEmail(email);
-  if (!isEmail || !password) {
+  if (!isEmail || !password || !email) {
     throw new BadRequestError(' Переданы некорректные данные при создании пользователя. ');
   }
   return bcrypt.hash(password, 10)
@@ -55,6 +55,9 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(new BadRequestError(' Переданы некорректные данные при создании пользователя. '));
+      }
+      if (err.code === 11000) {
+        return next(new ConflictError('Такой emal уже существующет в базе '));
       }
       return next(err);
     });
