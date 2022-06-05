@@ -38,7 +38,7 @@ const deleteCard = (req, res, next) => {
         throw new ForbiddenError('Чужужю карточку нельзя удалять.');
       }
       card.remove();
-      return res.send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
@@ -56,7 +56,7 @@ const addLike = (req, res, next) => {
       if (!card) {
         throw new NotFoundError('Карточка с таким  _id не найдена.');
       }
-      return res.send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
@@ -74,11 +74,11 @@ const removeLike = (req, res, next) => {
       if (!card) {
         throw new NotFoundError('Карточка с таким  _id не найдена.');
       }
-      return res.send(card);
+      return res.status(200).send(card);
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
-        return next(BadRequestError('Переданы некорректные данные для постановки/снятия лайка.'));
+        return next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка.'));
       }
       return next(err);
     });
