@@ -2,7 +2,7 @@ const bcrypt = require('bcryptjs');
 
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const { NotFoundError, BadRequestError, ConflictError } = require('../errors/errors');
+const { NotFoundError, BadRequestError, ConflictError, UnauthorizedError } = require('../errors/errors');
 
 const getUsers = (req, res, next) => {
   User.find({})
@@ -107,7 +107,7 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.message === 'not_found') {
-        return next(new BadRequestError('Емейл или пароль неверный'));
+        return next(new UnauthorizedError('Емейл или пароль неверный'));
       }
       return next(err);
     });
