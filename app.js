@@ -5,6 +5,7 @@ const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const NotFoundError = require('./errors/not-found-error');
 
 const { PORT = 3000 } = process.env;
 
@@ -32,7 +33,7 @@ app.post('/signup', celebrate({
 /* app.use(auth); */
 app.use('/users', auth, userRouter);
 app.use('/cards', auth, cardRouter);
-app.use('*', (_, res) => res.status(404).send({ message: 'Страница не найдена' }));
+app.use('*', auth, (req, res, next) => next(new NotFoundError('Страница не найдена')));
 
 app.use(errors());
 
