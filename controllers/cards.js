@@ -1,6 +1,7 @@
 const Card = require('../models/card');
-const { BadRequestError, ForbiddenError } = require('../errors/errors');
+const ForbiddenError = require('../errors/forbidden-error');
 const NotFoundError = require('../errors/not-found-error');
+const BadRequestError = require('../errors/bad-request-error');
 
 const getCards = (req, res, next) => {
   Card.find({})
@@ -38,8 +39,7 @@ const deleteCard = (req, res, next) => {
       if (!card.owner.equals(req.user._id)) {
         throw new ForbiddenError('Чужужю карточку нельзя удалять.');
       }
-      card.remove();
-      return res.status(200).send(card);
+      return card.remove(() => res.status(200).send(card));
     })
     .catch((err) => {
       if (err.kind === 'ObjectId') {
